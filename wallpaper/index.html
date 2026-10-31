@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>ASCII Ocean</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="oceanWrap"><canvas id="ocean" aria-hidden="true"></canvas></div>
+<div class="scrim"></div>
+<script>
+  window.__ModuleLoader__ = {
+    load: function (spec) {
+      try { window.__OCEAN_MODULE__ = spec.factory(function () { return {}; }); }
+      catch (e) { console.warn('ocean init failed', e); }
+    }
+  };
+</script>
+<script src="assets/ocean.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

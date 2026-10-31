@@ -1,0 +1,18 @@
+:root { --mono: "Cascadia Mono", Consolas, monospace; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #08100e; }
+
+#oceanWrap { position: fixed; inset: 0; z-index: 0; }
+#ocean { display: block; width: 100%; height: 100%; }
+
+/* gentle vignette so the desktop feels lit, not flat */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120vmin 60vmin at 50% 116%, rgba(74, 132, 110, 0.26), transparent 66%),
+    linear-gradient(180deg, rgba(4, 9, 7, 0.32), transparent 26%, transparent 74%, rgba(4, 9, 7, 0.44));
+}
