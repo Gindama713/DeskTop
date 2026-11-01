@@ -1,7 +1,10 @@
--- WezTerm: desktop console
--- tab 1 = htop | tab 2 = console (HUD + claude + ubuntu) | tab 3 = claude
+-- DeskTop: three tabs, no tab bar, pinned to the bottom by pin-terminal.ps1
+-- LOCAL points at the folder that holds donut.py / hud.ps1 / leetcode.ps1 / todo-fzf.ps1
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
+
+local LOCAL = 'C:/Users/you/Desktop/DeskTop'
+local PY = 'python'
 
 config.font = wezterm.font_with_fallback({
   { family = 'JetBrainsMono Nerd Font' },
@@ -33,13 +36,11 @@ config.window_decorations = 'NONE'
 config.window_padding = { left = 16, right = 16, top = 12, bottom = 12 }
 config.enable_tab_bar = false
 config.hide_tab_bar_if_only_one_tab = true
-config.default_cwd = 'E:\\ClaudeConsole'
-config.initial_cols = 120
+config.initial_cols = 168
 config.initial_rows = 36
 config.adjust_window_size_when_changing_font_size = false
 config.automatically_reload_config = true
 
--- Alt+arrows flip tabs, Alt+T new, Alt+W close
 config.keys = {
   { key = 'LeftArrow', mods = 'ALT', action = wezterm.action.ActivateTabRelative(-1) },
   { key = 'RightArrow', mods = 'ALT', action = wezterm.action.ActivateTabRelative(1) },
@@ -50,52 +51,42 @@ config.keys = {
   { key = '3', mods = 'ALT', action = wezterm.action.ActivateTab(2) },
 }
 
-local claude_cmd = "& 'C:\\Users\\31772\\AppData\\Roaming\\npm\\claude.cmd'"
+local claude_cmd = "& 'claude.cmd'"
 
 wezterm.on('gui-startup', function(cmd)
-  local py = 'C:\\Users\\31772\\.dsh\\dsh-runtimes\\dsh-primary-runtime\\dependencies\\python\\python.exe'
+  -- tab 1: donut + leetcode
   local t1, p1, win = wezterm.mux.spawn_window {
-    args = { py, '-u', 'E:\\Apps\\DesktopTerminal\\donut.py' },
+    args = { PY, '-u', LOCAL .. '/donut.py' },
   }
   p1:split {
     direction = 'Right',
     size = 0.44,
-    args = {
-      'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass',
-      '-File', 'E:\\Apps\\DesktopTerminal\\leetcode.ps1',
-    },
+    args = { 'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', LOCAL .. '/leetcode.ps1' },
   }
 
+  -- tab 2: HUD | claude / wsl
   local t2, p2 = win:spawn_tab {
-    cwd = 'E:\\ClaudeConsole',
     args = { 'powershell.exe', '-NoLogo', '-NoExit', '-Command', claude_cmd },
   }
   p2:split {
     direction = 'Left',
     size = 0.40,
-    args = {
-      'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass',
-      '-File', 'E:\\Apps\\DesktopTerminal\\hud.ps1',
-    },
+    args = { 'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', LOCAL .. '/hud.ps1' },
   }
   p2:split {
     direction = 'Bottom',
     size = 0.34,
-    cwd = 'D:\\Desktop',
-    args = { 'wsl.exe', '-d', 'Ubuntu-24.04', '--cd', '/mnt/d/Desktop' },
+    args = { 'wsl.exe' },
   }
 
+  -- tab 3: todo + pomodoro
   local t3, p3 = win:spawn_tab {
-    cwd = 'E:\\Apps\\DesktopTerminal',
-    args = { 'powershell.exe', '-NoLogo', '-NoExit', '-Command', 'tb' },
+    args = { 'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', LOCAL .. '/todo-fzf.ps1' },
   }
   p3:split {
     direction = 'Right',
-    size = 0.40,
-    args = {
-      'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass',
-      '-File', 'E:\\Apps\\DesktopTerminal\\pomodoro.ps1',
-    },
+    size = 0.26,
+    args = { 'powershell.exe', '-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', LOCAL .. '/pomodoro.ps1' },
   }
 
   t2:activate()

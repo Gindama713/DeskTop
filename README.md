@@ -1,37 +1,126 @@
 # DeskTop
 
-A terminal-first Windows desktop: a frameless WezTerm window pinned to the bottom of the
-normal z-order, above the animated wallpaper and below every other window.
+> A terminal-first Windows desktop: one WezTerm window pinned **above the wallpaper, below every other window** — HUD, AI chat, LeetCode stats, tasks and a pomodoro timer, all in terminal tabs.
 
-## Layout
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-Windows%2011-0078D4)
+![WezTerm](https://img.shields.io/badge/terminal-WezTerm-4E49EE)
+![PowerShell](https://img.shields.io/badge/shell-PowerShell%205.1+-5391FE)
 
-| Tab | Content |
-|-----|---------|
-| 1 | Spinning ASCII donut (Python) + LeetCode stats |
-| 2 | HUD (GINDAMA wordmark, system card) + Claude Code + Ubuntu (WSL) |
-| 3 | taskbook kanban + pomodoro |
+```
+ ┌ tab 1 ────────────────┬ tab 2 ───────────────────────┬ tab 3 ────────────────┐
+ │   spinning donut      │  GINDAMA HUD  │ Claude Code  │  todo (fzf) │ pomodoro│
+ │   LeetCode stats      │               │ Ubuntu (WSL) │             │ 25:00   │
+ └───────────────────────┴───────────────┴──────────────┴─────────────┴─────────┘
+```
 
-Tabs: `Alt+Left` / `Alt+Right`, direct `Alt+1..3`.
+## Why
 
-## Files
+Most "terminal desktops" replace the whole desktop. This one doesn't: it keeps your wallpaper,
+icons and taskbar, and only pins a single frameless terminal to the bottom of the **normal**
+z-order. It sits above the wallpaper, never covers your apps, and still accepts keyboard input
+normally.
 
-- `wezterm.lua` — WezTerm config (layout, colors, tabs)
-- `hud.ps1` — left HUD pane (system card, ASCII bars)
-- `donut.py` — spinning donut, classic donut.c math
-- `leetcode.ps1` — LeetCode.cn GraphQL stats
-- `gh-status.ps1` — GitHub stats (needs `gh auth login`)
-- `todo.ps1` — scrollable todo.txt viewer
-- `pomodoro.ps1` — pomodoro timer with presets
-- `pin-terminal.ps1` — keeps the window pinned to HWND_BOTTOM
-- `start-terminal.cmd` — launcher (terminal + pin watchdog)
-- `wallpaper/` — HTML wallpaper (ASCII ocean, Lively Wallpaper)
+## Features
+
+| Tab | What's inside |
+|-----|---------------|
+| 1 | Spinning ASCII donut (donut.c math, Python) + [LeetCode CN](https://leetcode.cn) stats |
+| 2 | System HUD (uptime / CPU / RAM / disks / network), Claude Code, Ubuntu WSL shell |
+| 3 | Task list driven by [`fzf`](https://github.com/junegunn/fzf) + pomodoro timer with presets |
+
+- **Pinned, not always-on-top** — `SetWindowPos(HWND_BOTTOM)` in a loop keeps it above the
+  wallpaper and below every app, without stealing focus.
+- **Fixed geometry** — position lives in `layout.txt`, enforced with move-only calls (resizing a
+  live WezTerm window can panic its renderer, so the size comes from the WezTerm config).
+- **Tabs without a tab bar** — `Alt+←/→` to flip, `Alt+1..3` to jump.
+- **Real tools, not reimplementations** — LeetCode GraphQL, `fzf`, `donut.c`, WSL, Claude Code.
 
 ## Requirements
 
-- Windows 11, WezTerm, PowerShell 5.1+, Python 3, WSL (Ubuntu), `gh` (optional)
-- Install paths in `wezterm.lua` assume `E:\Apps\DesktopTerminal`
+- Windows 11
+- [WezTerm](https://wezterm.org) (portable build works)
+- PowerShell 5.1+
+- Python 3 (for the donut)
+- WSL with Ubuntu (optional, for tab 2's shell)
+- `fzf` (optional, for tab 3) — `winget install junegunn.fzf`
+- Claude Code (optional) — `npm i -g @anthropic-ai/claude-code`
 
-## Notes
+## Install
 
-The window is pinned with `SetWindowPos(HWND_BOTTOM, SWP_NOACTIVATE)` in a loop, so it stays
-visible over the wallpaper while never covering normal windows.
+```powershell
+git clone https://github.com/Gindama713/DeskTop.git
+cd DeskTop
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+`install.ps1` will:
+
+1. rewrite the `LOCAL` path in `wezterm.lua` to your clone directory,
+2. back up any existing `~/.wezterm.lua` and copy the new one,
+3. create `layout.txt` with the window geometry,
+4. register a Startup shortcut that launches the terminal + pin watchdog.
+
+Then edit `layout.txt` (or drag/resize the window once and copy the numbers from
+`GetWindowRect`) to place it where you want.
+
+## Configure
+
+| File | Purpose |
+|------|---------|
+| `wezterm.lua` | font, colors, tab layout — the `LOCAL` variable at the top points at this folder |
+| `layout.txt` | window `X` / `Y` on screen (virtual pixels) |
+| `TODO.md` | tasks, `- [ ]` / `- [x]` |
+| `leetcode-user.txt` | your LeetCode CN username |
+
+LeetCode contest / activity / recent-submission data needs a `leetcode-cookie.txt` with your
+`csrftoken` and `LEETCODE_SESSION` (never committed — it's in `.gitignore`). Without it the panel
+still shows solved counts and the daily challenge.
+
+## Keys
+
+| Keys | Action |
+|------|--------|
+| `Alt+←` / `Alt+→` | previous / next tab |
+| `Alt+1..3` | jump to tab |
+| `Alt+T` / `Alt+W` | new / close tab |
+| tab 3 | `Enter` toggle task, `Ctrl-N` add, `Ctrl-D` delete, `Esc` quit |
+| pomodoro | `space` start/pause, `1..5` presets, `r` reset, `q` quit |
+
+## How the pinning works
+
+```powershell
+[Win32]::SetWindowPos($hwnd, [IntPtr]1, 0,0,0,0, 0x0013)  # HWND_BOTTOM | NOSIZE | NOMOVE | NOACTIVATE
+```
+
+`HWND_BOTTOM` puts the window at the end of the normal z-order: above the desktop wallpaper,
+below every regular window. `NOACTIVATE` keeps your focused app focused. A background PowerShell
+loop re-applies it every 500 ms so the window never drifts up.
+
+## Troubleshooting
+
+| Symptom | Cause / fix |
+|---|---|
+| WezTerm crashes with `Viewport dimensions are too large` | do not resize a live window with `SetWindowPos`; set size via `initial_cols/rows` |
+| Window jumps back to a corner | `pin-terminal.ps1` enforces `layout.txt` every 500 ms |
+| LeetCode panel says `unranked` / `no data` | cookie expired, paste a fresh one into `leetcode-cookie.txt` |
+| Chinese shows as `????` in fzf | the script forces `chcp 65001`; keep it at the top |
+
+## Project layout
+
+```
+wezterm.lua          WezTerm config (tabs, colors, spawn commands)
+hud.ps1              left HUD pane
+donut.py             spinning donut
+leetcode.ps1         LeetCode CN panel
+todo-fzf.ps1         task list via fzf
+pomodoro.ps1         pomodoro timer
+pin-terminal.ps1     z-order pin + position enforcement
+layout.txt           window X/Y
+start-terminal.cmd   launcher (generated by install.ps1)
+wallpaper/           optional HTML wallpaper
+```
+
+## License
+
+MIT — see [LICENSE](LICENSE). Star it if you build your own.
