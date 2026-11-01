@@ -1,5 +1,7 @@
 # DeskTop
 
+![DeskTop preview](docs/preview.png)
+
 > A terminal-first Windows desktop: one WezTerm window pinned **above the wallpaper, below every other window** — HUD, AI chat, LeetCode stats, tasks and a pomodoro timer, all in terminal tabs.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
