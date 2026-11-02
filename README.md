@@ -79,6 +79,28 @@ LeetCode contest / activity / recent-submission data needs a `leetcode-cookie.tx
 `csrftoken` and `LEETCODE_SESSION` (never committed — it's in `.gitignore`). Without it the panel
 still shows solved counts and the daily challenge.
 
+## Memory footprint
+
+Measured on Windows 11 24H2, idle after warm-up (working set):
+
+| Component | RAM |
+|---|---|
+| WezTerm | ~135 MB |
+| Claude Code | ~207 MB |
+| 4 PowerShell panes (HUD / LeetCode / TODO / pomodoro) | ~350–440 MB |
+| `deskpin.exe` — native z-order watchdog | ~25–70 MB |
+| fzf + Python donut | ~23 MB |
+| WSL2 VM, idle | ~65 MB |
+| **Total, without wallpaper** | **~0.9 GB** |
+| Lively wallpaper (optional) | ~148 MB |
+
+Three things keep it from ballooning:
+
+1. **No PowerShell pin loop.** The original watchdog cost ~91 MB; `deskpin.exe` (`DeskPin.cs`, compiled by the installer) does the same work in ~25 MB.
+2. **Panes exit with the terminal.** Every pane script checks `Get-Process wezterm-gui` on each loop and quits — zombie panes can't pile up. That was the biggest real leak: duplicate panes doubled memory after a few restarts.
+3. **No WMI polling on the hot path.** The HUD reads memory with a one-time compiled `GlobalMemoryStatusEx` P/Invoke instead of a per-second CIM query (the CIM version measured ~150 MB, the P/Invoke one ~90 MB).
+
+To go lower: close the LeetCode pane, run the pomodoro on demand, use a static wallpaper — roughly 350 MB without Claude Code.
 ## Keys
 
 | Keys | Action |

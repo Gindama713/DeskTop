@@ -45,6 +45,7 @@ function Bar([int]$pct, [int]$width) {
 
 [Console]::Write("$E[2J")
 while ($true) {
+    if (-not (Get-Process wezterm-gui -ErrorAction SilentlyContinue)) { exit }
     $buf = New-Object System.Text.StringBuilder
     function W([string]$s) { [void]$buf.AppendLine($s) }
 

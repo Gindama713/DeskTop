@@ -24,6 +24,7 @@ if (-not (Test-Path $file)) {
 }
 
 while ($true) {
+    if (-not (Get-Process wezterm-gui -ErrorAction SilentlyContinue)) { exit }
     $lines = Read-Lines
     $rows = New-Object System.Collections.Generic.List[string]
 

@@ -57,6 +57,7 @@ $lastTick = Get-Date
 
 [Console]::Write("$E[2J")
 while ($true) {
+    if (-not (Get-Process wezterm-gui -ErrorAction SilentlyContinue)) { exit }
     while ([Console]::KeyAvailable) {
         $k = [Console]::ReadKey($true)
         $ks = [string]$k.Key

@@ -4,7 +4,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;
-public class HudMemF {
+public class HudMemG {
   [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Auto)]
   public class M {
     public uint dwLength; public uint dwMemoryLoad; public ulong ullTotalPhys;
@@ -16,6 +16,7 @@ public class HudMemF {
   public static extern bool GlobalMemoryStatusEx([In, Out] M m);
 }
 "@
+
 
 $E = [char]27
 $green = "$E[38;2;167;192;128m"
@@ -57,8 +58,9 @@ try {
 
 [Console]::Write("$E[2J")
 while ($true) {
-    $m = New-Object HudMemF+M
-    [HudMemF]::GlobalMemoryStatusEx($m) | Out-Null
+    if (-not (Get-Process wezterm-gui -ErrorAction SilentlyContinue)) { exit }
+    $m = New-Object HudMemG+M
+    [HudMemG]::GlobalMemoryStatusEx($m) | Out-Null
     $total = [math]::Round($m.ullTotalPhys / 1GB, 1)
     $used = [math]::Round(($m.ullTotalPhys - $m.ullAvailPhys) / 1GB, 1)
     $ramPct = [int][math]::Round(100 * ($m.ullTotalPhys - $m.ullAvailPhys) / $m.ullTotalPhys)
