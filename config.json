@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Gindama713/DeskTop/main/config.schema.json",
+  "window": {
+    "x": 444,
+    "y": 274,
+    "cols": 168,
+    "rows": 36,
+    "font_size": 8.5,
+    "opacity": 0.94
+  },
+  "theme": {
+    "bg": "#0c1a16",
+    "fg": "#d3c6aa",
+    "green": "#a7c080",
+    "aqua": "#83c092",
+    "yellow": "#dbbc7f",
+    "red": "#e67e80",
+    "dim": "#68746a",
+    "cursor": "#a7c080"
+  },
+  "python": "python",
+  "data_dir": "data",
+  "leetcode": {
+    "username": "qian-xk"
+  },
+  "tabs": [
+    {
+      "name": "stats",
+      "panes": [
+        { "args": ["${PY}", "-u", "${LOCAL}/panes/donut.py"], "size": 0.56 },
+        { "split": "Right", "size": 0.44, "args": ["${PS}", "-NoLogo", "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "${LOCAL}/panes/leetcode.ps1"] }
+      ]
+    },
+    {
+      "name": "console",
+      "panes": [
+        { "args": ["${PS}", "-NoLogo", "-NoExit", "-Command", "${CLAUDE}"] },
+        { "split": "Left", "size": 0.40, "args": ["${PS}", "-NoLogo", "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "${LOCAL}/panes/hud.ps1"] },
+        { "split": "Bottom", "size": 0.34, "args": ["${WSL}"] }
+      ]
+    },
+    {
+      "name": "work",
+      "panes": [
+        { "args": ["${PS}", "-NoLogo", "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "${LOCAL}/panes/todo.ps1"] },
+        { "split": "Right", "size": 0.26, "args": ["${PS}", "-NoLogo", "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "${LOCAL}/panes/pomodoro.ps1"] }
+      ]
+    }
+  ]
+}

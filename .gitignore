@@ -1,13 +1,7 @@
-wallpaper/preview-*.png
-wallpaper/*.png
-todo.txt
-leetcode-user.txt
-*~
+# personal data, never commit
+data/*
+!data/*.example
 
-wallpaper/assets/icons/
-
-
-*leetcode-cookie*
-*cookie*.txt
-secrets/
-
+# build output
+deskpin.exe
+*.swp
